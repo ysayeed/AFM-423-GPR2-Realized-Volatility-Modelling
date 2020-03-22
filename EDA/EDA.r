@@ -5,27 +5,38 @@ library(car)
 library(tseries)
 library(forecast)
 library(quantmod)
+library(MASS)
+library(scales)
 
-target = 'C:/Users/Reginald Tao/OneDrive - University of Waterloo/MY ULOO/4BB/AFM423/Proj/Code/423-ML-master/Data/SPX_Index_processed.csv' #path to processed csv file
+#target = 'C:/Users/Reginald Tao/OneDrive - University of Waterloo/MY ULOO/4BB/AFM423/Proj/Code/423-ML-master/Data/SPX_Index_processed.csv' #path to processed csv file
 
+
+target = './Data/SPX_Index_processed.csv' #path to processed csv file, setwd to 423-ML-master
+
+#my wd:  C:/Users/Reginald Tao/OneDrive - University of Waterloo/MY ULOO/4BB/AFM423/Proj/Code/423-ML-master
 df = read.csv(file = target, row.names = 'X')
 df.z = as.zoo(df)
-lnorm_rv=rlnorm(length(df[,1]),mean(df[,1],sd(df[,1])))
+
 chart.TimeSeries(df.z, lwd=1)
 
-#hist(df$Realized.Volatility, breaks=100, col="slateblue",freq=F)
+
 
 table.Stats(df.z)
 
-hist(df$Realized.Volatility, breaks=100, col="slateblue",freq=F,main='Hist of RV Density and Fitted Lognormal Density')
-fit.params <- fitdistr(df$Realized.Volatility, "lognormal")
-hist(rlnorm(length(df$Realized.Volatility),fit.params$estimate["meanlog"], fit.params$estimate["sdlog"]),breaks=100,col=alpha('red',0.9),add=T,freq=F)
-legend('topright',legend=c("RV Density", "Fitted Lognormal Density"),
-       col=c("blue", "red"),pch=0:0)
-
-
+#normal fit
 qqPlot(df$Realized.Volatility,main='RV Normal QQPlot')
 jarque.bera.test(df$Realized.Volatility)
+
+
+#lognormal fit
+fit.params <- fitdistr(df$Realized.Volatility, "lognormal")
+h <- hist(df$Realized.Volatility, breaks=seq(-0.0000,max(df$Realized.Volatility)+0.001,by=0.0015),plot=FALSE)
+barplot(rbind(dlnorm(head(h$breaks,length(h$density)),fit.params$estimate["meanlog"], fit.params$estimate["sdlog"]),h$density),
+        col=c('black','lightblue'),beside=TRUE,legend.text=c("Fitted Lognormal","Empirical Density of RV"),
+        names.arg=round(seq(0,max(df$Realized.Volatility),length.out=length(h$counts)),4),
+        xlab='RV',ylab='Density',main='RV Density and Fitted Lognormal Density',ylim=c(0,120))
+qqPlot(df$Realized.Volatility,dist='lnorm',main='RV Lognormal QQPlot')
+
 
 
 #qqPlot(df$Realized.Volatility, distribution="t", df=4)
@@ -38,7 +49,6 @@ jarque.bera.test(df$Realized.Volatility)
 #qqPlot(df$Realized.Volatility, dist="st", location=st.df.fit$dp[1], scale=st.df.fit$dp[2], 
 #      shape=st.df.fit$dp[3], df=st.df.fit$dp[4])
 
-qqPlot(df$Realized.Volatility,dist='lnorm',main='RV Lognormal QQPlot')
 
 
 # use Box.test from stats package
