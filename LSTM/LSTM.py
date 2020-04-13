@@ -61,7 +61,7 @@ df['Realized Volatility'], mean, std = normalize(df['Realized Volatility'])
 
 train_percent = 0.8
 validate_percent = 0.1
-epochs = 10
+epochs = 50
 
 sep1 = round(train_percent * len(df))
 sep2 = round((train_percent + validate_percent) * len(df))
@@ -70,12 +70,12 @@ best_model1 = None
 best_model2 = None
 best_model3 = None
 
-for look_back in [1]:#, 5, 22, 30]:
+for look_back in [1, 5, 22, 30]:
     train_data = df[0:sep1]
     validate_data = df[sep1-look_back:sep2]
     test_data = df[sep2-look_back:]
 
-    for num_neurons in [32]:#, 64, 128, 256, 512]:
+    for num_neurons in [32, 64, 128, 256, 512]:
         print(look_back, num_neurons)
 
         train_x, train_y = create_tensor(train_data, look_back)
@@ -97,7 +97,7 @@ for look_back in [1]:#, 5, 22, 30]:
         model2.add(Dropout(0.5))
         model2.add(Dense(1))
         model2.compile(loss='mean_squared_error', optimizer='adam')
-        model2.fit(train_x, train_y, epochs=epochs, batch_size=4, verbose=2)
+        #model2.fit(train_x, train_y, epochs=epochs, batch_size=4, verbose=2)
 
         random.seed(1)
         model3 = Sequential()
@@ -109,7 +109,7 @@ for look_back in [1]:#, 5, 22, 30]:
         model3.add(Dropout(0.5))
         model3.add(Dense(1))
         model3.compile(loss='mean_squared_error', optimizer='adam')
-        model3.fit(train_x, train_y, epochs=epochs, batch_size=4, verbose=2)
+        #model3.fit(train_x, train_y, epochs=epochs, batch_size=4, verbose=2)
 
         train_y = denormalize(train_y, mean, std)
         valid_y = denormalize(valid_y, mean, std)
