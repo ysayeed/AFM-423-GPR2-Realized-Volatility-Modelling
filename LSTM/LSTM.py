@@ -97,7 +97,7 @@ for look_back in [1, 5, 22, 30]:
         model2.add(Dropout(0.5))
         model2.add(Dense(1))
         model2.compile(loss='mean_squared_error', optimizer='adam')
-        #model2.fit(train_x, train_y, epochs=epochs, batch_size=4, verbose=2)
+        model2.fit(train_x, train_y, epochs=epochs, batch_size=4, verbose=2)
 
         random.seed(1)
         model3 = Sequential()
@@ -109,7 +109,7 @@ for look_back in [1, 5, 22, 30]:
         model3.add(Dropout(0.5))
         model3.add(Dense(1))
         model3.compile(loss='mean_squared_error', optimizer='adam')
-        #model3.fit(train_x, train_y, epochs=epochs, batch_size=4, verbose=2)
+        model3.fit(train_x, train_y, epochs=epochs, batch_size=4, verbose=2)
 
         train_y = denormalize(train_y, mean, std)
         valid_y = denormalize(valid_y, mean, std)
