@@ -97,7 +97,7 @@ for look_back in [1, 5, 22, 30]:
         model2.add(Dropout(0.5))
         model2.add(Dense(1))
         model2.compile(loss='mean_squared_error', optimizer='adam')
-        model2.fit(train_x, train_y, epochs=epochs, batch_size=4, verbose=2)
+        #model2.fit(train_x, train_y, epochs=epochs, batch_size=4, verbose=2)
 
         random.seed(1)
         model3 = Sequential()
@@ -109,7 +109,7 @@ for look_back in [1, 5, 22, 30]:
         model3.add(Dropout(0.5))
         model3.add(Dense(1))
         model3.compile(loss='mean_squared_error', optimizer='adam')
-        model3.fit(train_x, train_y, epochs=epochs, batch_size=4, verbose=2)
+        #model3.fit(train_x, train_y, epochs=epochs, batch_size=4, verbose=2)
 
         train_y = denormalize(train_y, mean, std)
         valid_y = denormalize(valid_y, mean, std)
@@ -128,34 +128,34 @@ for look_back in [1, 5, 22, 30]:
         elif best_model1[1] > validateScore1:
             best_model1 = (model1, validate_score1, look_back, num_neurons)
             
-        train_predict2 = model2.predict(train_x)
-        train_predict2 = denormalize(train_predict2, mean, std)
-        validate_predict2 = model2.predict(valid_x)
-        validate_predict2 = denormalize(validate_predict2, mean, std)
+        #train_predict2 = model2.predict(train_x)
+        #train_predict2 = denormalize(train_predict2, mean, std)
+        #validate_predict2 = model2.predict(valid_x)
+        #validate_predict2 = denormalize(validate_predict2, mean, std)
 
-        train_score2 = np.sqrt(np.mean((train_y[0] - train_predict2[:,0])**2))
-        validate_score2 = np.sqrt(np.mean((valid_y[0] - validate_predict2[:,0])**2))
+        #train_score2 = np.sqrt(np.mean((train_y[0] - train_predict2[:,0])**2))
+        #validate_score2 = np.sqrt(np.mean((valid_y[0] - validate_predict2[:,0])**2))
 
-        if best_model2 is None:
-            best_model2 = (model2, validate_score2, look_back, num_neurons)
-        elif best_model2[1] > validateScore2:
-            best_model2 = (model2, validate_score2, look_back, num_neurons)
+        #if best_model2 is None:
+            #best_model2 = (model2, validate_score2, look_back, num_neurons)
+        #elif best_model2[1] > validateScore2:
+            #best_model2 = (model2, validate_score2, look_back, num_neurons)
 
-        train_predict3 = model3.predict(train_x)
-        train_predict3 = denormalize(train_predict3, mean, std)
-        validate_predict3 = model3.predict(valid_x)
-        validate_predict3 = denormalize(validate_predict3, mean, std)
+        #train_predict3 = model3.predict(train_x)
+        #train_predict3 = denormalize(train_predict3, mean, std)
+        #validate_predict3 = model3.predict(valid_x)
+        #validate_predict3 = denormalize(validate_predict3, mean, std)
 
-        train_score3 = np.sqrt(np.mean((train_y[0] - train_predict3[:,0])**2))
-        validate_score3 = np.sqrt(np.mean((valid_y[0] - validate_predict3[:,0])**2))
+        #train_score3 = np.sqrt(np.mean((train_y[0] - train_predict3[:,0])**2))
+        #validate_score3 = np.sqrt(np.mean((valid_y[0] - validate_predict3[:,0])**2))
 
-        if best_model3 is None:
-            best_model3 = (model3, validate_score3, look_back, num_neurons)
-        elif best_model3[1] > validateScore1:
-            best_model3 = (model3, validate_score3, look_back, num_neurons)
+        #if best_model3 is None:
+            #best_model3 = (model3, validate_score3, look_back, num_neurons)
+        #elif best_model3[1] > validateScore1:
+            #best_model3 = (model3, validate_score3, look_back, num_neurons)
 
 
 generate_graphs(best_model1[0], best_model1[2], df, sep1, sep2)
-generate_graphs(best_model2[0], best_model2[2], df, sep1, sep2)
-generate_graphs(best_model3[0], best_model3[2], df, sep1, sep2)
+#generate_graphs(best_model2[0], best_model2[2], df, sep1, sep2)
+#generate_graphs(best_model3[0], best_model3[2], df, sep1, sep2)
 
