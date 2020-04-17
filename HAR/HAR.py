@@ -2,6 +2,9 @@ import pandas as pd
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error
 import matplotlib.pyplot as plt
+import statistics
+import statsmodels.api as sm
+
 
 dataset = 'SPX'
 data_folder = '../Data/'
@@ -43,15 +46,7 @@ har = LinearRegression().fit(train[x_labels], train[y_label])
 # print(har.coef_)
 # print(har.intercept_)
 
-# out sample:
-test_pred = har.predict(test[x_labels])
-mse = mean_squared_error(test[y_label], test_pred)
-print(mse)
-
-plt.plot(test_pred, color='orange')
-plt.plot(test[y_label], color='green')
-plt.savefig('har_test.png')
-
+# eval:
 # in and out sample trend:
 train_test_pred = har.predict(df[x_labels])
 mse = mean_squared_error(df[y_label], train_test_pred)
@@ -60,3 +55,36 @@ print(mse)
 plt.plot(train_test_pred, color='orange')
 plt.plot(df[y_label], color='green')
 plt.savefig('har_train_test.png')
+plt.clf()
+
+# out sample:
+test_pred = har.predict(test[x_labels])
+mse = mean_squared_error(test[y_label], test_pred)
+print(mse)
+
+plt.plot(test_pred, color='orange')
+plt.plot(test[y_label], color='green')
+plt.savefig('har_test.png')
+plt.clf()
+
+# standardized residual
+res = test_pred - test[y_label]
+
+# print(res)
+res_std = statistics.stdev(res)
+# print(res_std)
+res_mean = statistics.mean(res)
+# print(res_mean)
+res_adj = (res - res_mean)/res_std
+plt.axhline(y=1.96)
+plt.axhline(y=-1.96)
+
+plt.plot(res_adj, 'o')
+plt.savefig('har_res.png')
+plt.clf()
+
+# p-value of each?
+mod = sm.OLS(train[y_label], train[x_labels])
+fii = mod.fit()
+p_values = fii.summary2().tables[1]['P>|t|']
+print(p_values)

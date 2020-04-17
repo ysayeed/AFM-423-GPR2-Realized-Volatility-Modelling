@@ -3,12 +3,12 @@ from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error
 from sklearn.ensemble import BaggingRegressor
 import matplotlib.pyplot as plt
-from statistics import stdev 
+import statistics
 
 dataset = 'SPX'
 data_folder = '../Data/'
 pred = pd.read_csv(data_folder + dataset + '_Index_processed.csv', index_col = 0)
-print(pred)
+# print(pred)
 
 # create new df for weekly and monthly vol
 daily = pred.shift(1)
@@ -89,11 +89,16 @@ plt.clf()
 
 # standardized residual
 res = test_pred - test[y_label]
-std = stdev(res) * 2
 
-plt.axhline(y=std)
-plt.axhline(y=-std)
+# print(res)
+res_std = statistics.stdev(res)
+# print(res_std)
+res_mean = statistics.mean(res)
+# print(res_mean)
+res_adj = (res - res_mean)/res_std
+plt.axhline(y=1.96)
+plt.axhline(y=-1.96)
 
-plt.plot(res, 'o')
+plt.plot(res_adj, 'o')
 plt.savefig('bag_har_res.png')
 plt.clf()
