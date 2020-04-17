@@ -3,6 +3,7 @@ from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error
 from sklearn.ensemble import BaggingRegressor
 import matplotlib.pyplot as plt
+from statistics import stdev 
 
 dataset = 'SPX'
 data_folder = '../Data/'
@@ -25,7 +26,8 @@ df.dropna(inplace=True)
 
 # train test split
 length = len(df)
-train = df[:9 * length//10]
+train = df[:8 * length//10]
+validation = df[8 * length//10: 9 * length//10]
 test = df[9 * length//10:]
 
 x_labels = [
@@ -40,28 +42,30 @@ y_label = 'Realized Volatility'
 har_bag = None
 best_n = 0
 lowest_test_mse = 100
+cv_mses = []
 for i in range(1, 21):
     model = BaggingRegressor(base_estimator=LinearRegression(),
                                n_estimators=i, random_state=0) \
              .fit(train[x_labels], train[y_label])
 
-    mse = mean_squared_error(test[y_label], model.predict(test[x_labels]))
+    mse = mean_squared_error(validation[y_label], model.predict(validation[x_labels]))
+    cv_mses.append(mse)
     # print(mse)
     if mse < lowest_test_mse:
         lowest_test_mse = mse
         har_bag = model
         best_n = i
 
-
 print(best_n)
-# out sample:
-test_pred = har_bag.predict(test[x_labels])
-mse = mean_squared_error(test[y_label], test_pred)
-print(mse)
 
-plt.plot(test_pred, color='orange')
-plt.plot(test[y_label], color='green')
-plt.savefig('bag_har_test.png')
+# eval:
+# RMSE against i
+print(cv_mses)
+
+plt.xticks(list(range(0,21)), list(range(1,21)))
+plt.plot(cv_mses, color='orange')
+plt.savefig('bag_tuning.png')
+plt.clf()
 
 # in and out sample trend:
 train_test_pred = har_bag.predict(df[x_labels])
@@ -71,3 +75,25 @@ print(mse)
 plt.plot(train_test_pred, color='orange')
 plt.plot(df[y_label], color='green')
 plt.savefig('bag_har_train_test.png')
+plt.clf()
+
+# out sample:
+test_pred = har_bag.predict(test[x_labels])
+mse = mean_squared_error(test[y_label], test_pred)
+print(mse)
+
+plt.plot(test_pred, color='orange')
+plt.plot(test[y_label], color='green')
+plt.savefig('bag_har_test.png')
+plt.clf()
+
+# standardized residual
+res = test_pred - test[y_label]
+std = stdev(res) * 2
+
+plt.axhline(y=std)
+plt.axhline(y=-std)
+
+plt.plot(res, 'o')
+plt.savefig('bag_har_res.png')
+plt.clf()
