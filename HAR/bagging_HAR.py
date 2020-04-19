@@ -4,6 +4,9 @@ from sklearn.metrics import mean_squared_error
 from sklearn.ensemble import BaggingRegressor
 import matplotlib.pyplot as plt
 import statistics
+from math import sqrt
+
+plt.rcParams['figure.figsize'] = [12, 6]
 
 dataset = 'SPX'
 data_folder = '../Data/'
@@ -41,18 +44,18 @@ y_label = 'Realized Volatility'
 # HAR model fit: pick best number of estimators:
 har_bag = None
 best_n = 0
-lowest_test_mse = 100
+lowest_test_rmse = 100
 cv_mses = []
 for i in range(1, 21):
     model = BaggingRegressor(base_estimator=LinearRegression(),
                                n_estimators=i, max_samples=1/3,random_state=0) \
              .fit(train[x_labels], train[y_label])
 
-    mse = mean_squared_error(validation[y_label], model.predict(validation[x_labels]))
-    cv_mses.append(mse)
+    rmse = sqrt(mean_squared_error(validation[y_label], model.predict(validation[x_labels])))
+    cv_mses.append(rmse)
     # print(mse)
-    if mse < lowest_test_mse:
-        lowest_test_mse = mse
+    if rmse < lowest_test_rmse:
+        lowest_test_rmse = rmse
         har_bag = model
         best_n = i
 
@@ -63,32 +66,43 @@ print(best_n)
 print(cv_mses)
 
 plt.xticks(list(range(0,21)), list(range(1,21)))
+plt.xlabel('Number of iterations')
+plt.ylabel('Validation RMSE')
+plt.title(f'Bagged HAR Tuning')
 plt.plot(cv_mses, color='orange')
 plt.savefig('bag_tuning.png')
 plt.clf()
 
 # in and out sample trend:
 train_test_pred = har_bag.predict(df[x_labels])
-mse = mean_squared_error(df[y_label], train_test_pred)
-print(mse)
-
-plt.plot(train_test_pred, color='orange')
-plt.plot(df[y_label], color='green')
+rmse = sqrt(mean_squared_error(df[y_label], train_test_pred))
+print(rmse)
+plt.xticks([], [])
+plt.plot(train_test_pred, label = 'Predicted values')
+plt.plot(df[y_label], label = 'True values')
+plt.xlabel('Date')
+plt.ylabel('Volatility')
+plt.title(f'Bagged HAR Forecast over True Value (Train, Validation and Test)')
+plt.legend()
 plt.savefig('bag_har_train_test.png')
 plt.clf()
 
 # out sample:
 test_pred = har_bag.predict(test[x_labels])
-mse = mean_squared_error(test[y_label], test_pred)
-print(mse)
-
-plt.plot(test_pred, color='orange')
-plt.plot(test[y_label], color='green')
+rmse = sqrt(mean_squared_error(test[y_label], test_pred))
+print(rmse)
+plt.xticks([], [])
+plt.plot(test_pred, label = 'Predicted values')
+plt.plot(test[y_label], label = 'True values')
+plt.xlabel('Date')
+plt.ylabel('Volatility')
+plt.title(f'Bagged HAR Forecast over True Value (Test)')
+plt.legend()
 plt.savefig('bag_har_test.png')
 plt.clf()
 
 # standardized residual
-res = test_pred - test[y_label]
+res =  test[y_label]-test_pred
 
 # print(res)
 res_std = statistics.stdev(res)
@@ -98,7 +112,10 @@ res_mean = statistics.mean(res)
 res_adj = (res - res_mean)/res_std
 plt.axhline(y=1.96)
 plt.axhline(y=-1.96)
-
+plt.xticks([], [])
 plt.plot(res_adj, 'o')
+plt.xlabel('Date')
+plt.ylabel('Residuals')
+plt.title(f'Bagged HAR Standardized Residuals')
 plt.savefig('bag_har_res.png')
 plt.clf()

@@ -4,6 +4,7 @@ from sklearn.metrics import mean_squared_error
 import matplotlib.pyplot as plt
 import statistics
 import statsmodels.api as sm
+from math import sqrt
 
 
 dataset = 'SPX'
@@ -49,26 +50,35 @@ har = LinearRegression().fit(train[x_labels], train[y_label])
 # eval:
 # in and out sample trend:
 train_test_pred = har.predict(df[x_labels])
-mse = mean_squared_error(df[y_label], train_test_pred)
-print(mse)
+rmse = sqrt(mean_squared_error(df[y_label], train_test_pred))
+print(rmse)
 
-plt.plot(train_test_pred, color='orange')
-plt.plot(df[y_label], color='green')
+plt.xticks([], [])
+plt.plot(train_test_pred, label = 'Predicted values')
+plt.plot(df[y_label], label = 'True values')
+plt.xlabel('Date')
+plt.ylabel('Volatility')
+plt.title(f'HAR Forecast over True Value (Train and Test)')
+plt.legend()
 plt.savefig('har_train_test.png')
 plt.clf()
 
 # out sample:
 test_pred = har.predict(test[x_labels])
-mse = mean_squared_error(test[y_label], test_pred)
-print(mse)
-
-plt.plot(test_pred, color='orange')
-plt.plot(test[y_label], color='green')
+rmse = sqrt(mean_squared_error(test[y_label], test_pred))
+print(rmse)
+plt.xticks([], [])
+plt.plot(test_pred, label = 'Predicted values')
+plt.plot(test[y_label], label = 'True values')
+plt.xlabel('Date')
+plt.ylabel('Volatility')
+plt.title(f'HAR Forecast over True Value (Test)')
+plt.legend()
 plt.savefig('har_test.png')
 plt.clf()
 
 # standardized residual
-res = test_pred - test[y_label]
+res = test[y_label] -test_pred
 
 # print(res)
 res_std = statistics.stdev(res)
@@ -78,8 +88,11 @@ res_mean = statistics.mean(res)
 res_adj = (res - res_mean)/res_std
 plt.axhline(y=1.96)
 plt.axhline(y=-1.96)
-
+plt.xticks([], [])
 plt.plot(res_adj, 'o')
+plt.xlabel('Date')
+plt.ylabel('Residuals')
+plt.title(f'HAR Standardized Residuals')
 plt.savefig('har_res.png')
 plt.clf()
 
