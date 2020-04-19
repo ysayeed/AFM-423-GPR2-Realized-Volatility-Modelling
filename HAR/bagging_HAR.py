@@ -45,7 +45,7 @@ lowest_test_mse = 100
 cv_mses = []
 for i in range(1, 21):
     model = BaggingRegressor(base_estimator=LinearRegression(),
-                               n_estimators=i, random_state=0) \
+                               n_estimators=i, max_samples=1/3,random_state=0) \
              .fit(train[x_labels], train[y_label])
 
     mse = mean_squared_error(validation[y_label], model.predict(validation[x_labels]))
