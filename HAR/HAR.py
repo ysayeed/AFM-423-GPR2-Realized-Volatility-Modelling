@@ -80,6 +80,11 @@ plt.clf()
 # standardized residual
 res = test[y_label] -test_pred
 
+res_lst = list(zip(test.index, res))
+res_df = pd.DataFrame(res_lst, columns = ['Date', 'res']) 
+
+res_df.to_csv('../DM_test/har_res.csv', index=False)
+
 # print(res)
 res_std = statistics.stdev(res)
 # print(res_std)
