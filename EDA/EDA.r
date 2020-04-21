@@ -12,6 +12,7 @@ library(scales)
 
 
 target = './Data/SPX_Index_processed.csv' #path to processed csv file, setwd to 423-ML-master
+#target = './Data/SPX_Index_LPSD.csv'
 
 #my wd:  C:/Users/Reginald Tao/OneDrive - University of Waterloo/MY ULOO/4BB/AFM423/Proj/Code/423-ML-master
 df = read.csv(file = target, row.names = 'X')
